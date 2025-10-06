@@ -35,7 +35,7 @@ export default function BookConsultation() {
       await ContactInquiry.create(formData);
       setIsSubmitted(true);
     } catch (error) {
-      console.error("Error submitting form:", error);
+      alert("Failed to submit consultation request. Please try again or contact us directly.");
     } finally {
       setIsSubmitting(false);
     }

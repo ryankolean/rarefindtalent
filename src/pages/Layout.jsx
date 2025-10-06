@@ -10,7 +10,7 @@ export default function Layout({ children }) {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const location = useLocation();
 
-  const isHomePage = location.pathname === createPageUrl("Home");
+  const isHomePage = location.pathname === "/" || location.pathname === createPageUrl("Home");
 
   const navigation = [
     { name: "Services", href: "#services" },
