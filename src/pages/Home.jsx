@@ -6,8 +6,8 @@ import { createPageUrl } from "@/utils";
 import { motion, useScroll, useTransform } from "framer-motion";
 
 export default function Home() {
-  const { scrollYProgress } = useScroll();
-  const rotateY = useTransform(scrollYProgress, [0, 0.5], [0, 360]);
+  const [isDragging, setIsDragging] = React.useState(false);
+  const constraintsRef = React.useRef(null);
 
   const services = [
     {
@@ -191,12 +191,42 @@ export default function Home() {
       {/* Hero Section */}
       <section className="px-4 sm:px-6 lg:px-8 py-24 lg:py-32 flex items-center justify-center min-h-[50vh]">
         <div className="max-w-7xl mx-auto text-center" style={{ perspective: '1200px' }}>
-            <motion.img
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/dde06eed3_generated-image10.png"
-              alt="Rare Find Talent Logo"
-              className="w-[20vw] max-w-[200px] min-w-[60px] mx-auto mb-8"
-              style={{ rotateY }}
-            />
+            <div ref={constraintsRef} className="relative inline-block mb-8">
+              <motion.img
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/dde06eed3_generated-image10.png"
+                alt="Rare Find Talent Logo"
+                className="w-[30vw] max-w-[300px] min-w-[120px] mx-auto cursor-grab active:cursor-grabbing"
+                drag
+                dragConstraints={constraintsRef}
+                dragElastic={0.1}
+                onDragStart={() => setIsDragging(true)}
+                onDragEnd={() => setIsDragging(false)}
+                initial={{ rotateY: 0 }}
+                animate={{
+                  rotateY: isDragging ? undefined : 360,
+                  scale: isDragging ? 1.05 : 1
+                }}
+                transition={{
+                  rotateY: {
+                    duration: 3,
+                    repeat: isDragging ? 0 : Infinity,
+                    ease: "linear",
+                    repeatDelay: 2
+                  },
+                  scale: {
+                    duration: 0.2
+                  }
+                }}
+                whileHover={{
+                  scale: 1.1,
+                  transition: { duration: 0.3 }
+                }}
+                style={{
+                  transformStyle: "preserve-3d",
+                  filter: "drop-shadow(0 10px 30px rgba(0, 0, 0, 0.15))"
+                }}
+              />
+            </div>
             <div className="headline-underline-container">
               <h1 className="headline-multiline text-black">
                 Connecting top talent<br/>
