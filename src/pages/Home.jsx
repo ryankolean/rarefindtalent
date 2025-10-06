@@ -201,18 +201,10 @@ export default function Home() {
                 dragElastic={0.1}
                 onDragStart={() => setIsDragging(true)}
                 onDragEnd={() => setIsDragging(false)}
-                initial={{ rotateY: 0 }}
                 animate={{
-                  rotateY: isDragging ? undefined : 360,
                   scale: isDragging ? 1.05 : 1
                 }}
                 transition={{
-                  rotateY: {
-                    duration: 3,
-                    repeat: isDragging ? 0 : Infinity,
-                    ease: "linear",
-                    repeatDelay: 2
-                  },
                   scale: {
                     duration: 0.2
                   }
