@@ -7,6 +7,7 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Breadcrumb from "@/components/Breadcrumb";
 import Logo from "@/components/Logo";
+import Footer from "@/components/Footer";
 
 export default function Layout({ children }) {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -277,6 +278,9 @@ export default function Layout({ children }) {
         )}
         {children}
       </main>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

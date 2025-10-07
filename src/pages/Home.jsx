@@ -7,6 +7,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import FAQ from "@/components/FAQ";
 import Testimonials from "@/components/Testimonials";
 import CaseStudies from "@/components/CaseStudies";
+import NewsletterSignup from "@/components/NewsletterSignup";
 
 export default function Home() {
   const [isDragging, setIsDragging] = React.useState(false);
@@ -436,6 +437,9 @@ export default function Home() {
 
       {/* FAQ Section */}
       <FAQ />
+
+      {/* Newsletter Section */}
+      <NewsletterSignup />
 
       {/* Bottom CTA Section */}
       <motion.section
