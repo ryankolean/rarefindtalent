@@ -9,6 +9,7 @@ import ResumeServices from "./ResumeServices";
 import Pricing from "./Pricing";
 
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const PAGES = {
     Home: Home,
@@ -57,6 +58,7 @@ function PagesContent() {
 export default function Pages() {
     return (
         <Router>
+            <GoogleAnalytics measurementId="G-XXXXXXXXXX" />
             <PagesContent />
         </Router>
     );
