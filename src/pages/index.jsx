@@ -6,6 +6,7 @@ import About from "./About";
 import ContingencyPlacement from "./ContingencyPlacement";
 import ContractServices from "./ContractServices";
 import ResumeServices from "./ResumeServices";
+import Pricing from "./Pricing";
 
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
@@ -15,7 +16,8 @@ const PAGES = {
     About: About,
     ContingencyPlacement: ContingencyPlacement,
     ContractServices: ContractServices,
-    ResumeServices: ResumeServices
+    ResumeServices: ResumeServices,
+    Pricing: Pricing
 }
 
 function _getCurrentPage(url) {
@@ -46,6 +48,7 @@ function PagesContent() {
                 <Route path="/ContingencyPlacement" element={<ContingencyPlacement />} />
                 <Route path="/ContractServices" element={<ContractServices />} />
                 <Route path="/ResumeServices" element={<ResumeServices />} />
+                <Route path="/Pricing" element={<Pricing />} />
             </Routes>
         </Layout>
     );

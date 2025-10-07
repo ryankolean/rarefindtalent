@@ -27,6 +27,7 @@ export default function Layout({ children }) {
       ]
     },
     { name: "About", href: "/About", type: "link" },
+    { name: "Pricing", href: "/Pricing", type: "link" },
     { name: "Contact", href: "/BookConsultation", type: "link" }
   ];
 
