@@ -4,6 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion, useScroll, useTransform } from "framer-motion";
+import FAQ from "@/components/FAQ";
+import Testimonials from "@/components/Testimonials";
+import CaseStudies from "@/components/CaseStudies";
 
 export default function Home() {
   const [isDragging, setIsDragging] = React.useState(false);
@@ -189,8 +192,14 @@ export default function Home() {
       </style>
 
       {/* Hero Section */}
-      <section className="px-4 sm:px-6 lg:px-8 py-24 lg:py-32 flex items-center justify-center min-h-[50vh]">
-        <div className="max-w-7xl mx-auto text-center" style={{ perspective: '1200px' }}>
+      <section className="relative px-4 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-32 flex items-center justify-center min-h-[60vh] overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 opacity-60"></div>
+        <div className="absolute inset-0">
+          <div className="absolute top-10 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+          <div className="absolute top-20 right-10 w-72 h-72 bg-slate-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
+        </div>
+        <div className="relative max-w-7xl mx-auto text-center" style={{ perspective: '1200px' }}>
             <div ref={constraintsRef} className="relative inline-block mb-8">
               <motion.img
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/dde06eed3_generated-image10.png"
@@ -419,8 +428,17 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <Testimonials />
+
+      {/* Case Studies Section */}
+      <CaseStudies />
+
+      {/* FAQ Section */}
+      <FAQ />
+
       {/* Bottom CTA Section */}
-      <motion.section 
+      <motion.section
         className="px-4 sm:px-6 lg:px-8 py-20 border-t border-slate-200"
         {...fadeInUp}
       >

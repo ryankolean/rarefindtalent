@@ -6,6 +6,7 @@ import { createPageUrl } from "@/utils";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Breadcrumb from "@/components/Breadcrumb";
+import Logo from "@/components/Logo";
 
 export default function Layout({ children }) {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -111,39 +112,60 @@ export default function Layout({ children }) {
     <div className="min-h-screen bg-white">
       <style>
         {`
-          @import url('https://fonts.googleapis.com/css2?family=Neuton:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
           
           html {
             scroll-behavior: smooth;
           }
 
           body {
-            font-family: 'Neuton', Georgia, Times New Roman, serif;
-            padding-top: 80px; /* Header height offset */
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding-top: 64px; /* Header height offset */
             background-color: #FFFFFF;
             color: #1f2937;
           }
+
+          @media (min-width: 768px) {
+            body {
+              padding-top: 80px;
+            }
+          }
           
           .krysta-nav {
-            font-size: 16px;
-            font-weight: 400;
+            font-size: 15px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
           }
           
           .krysta-brand {
             font-size: 20px;
             font-weight: 700;
             letter-spacing: 1px;
+            font-family: 'Inter', sans-serif;
+          }
+
+          h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', Georgia, serif;
+          }
+
+          :root {
+            --color-primary: #0f172a;
+            --color-primary-hover: #1e293b;
+            --color-accent: #0ea5e9;
+            --color-accent-hover: #0284c7;
+            --color-text: #1f2937;
+            --color-text-light: #64748b;
           }
         `}
       </style>
 
       {/* Header */}
-      <header className="bg-white py-5 px-4 sm:px-6 lg:px-8 fixed top-0 left-0 right-0 z-50 border-b border-slate-100">
+      <header className="bg-white py-4 sm:py-5 px-4 sm:px-6 lg:px-8 fixed top-0 left-0 right-0 z-50 border-b border-slate-100">
         <nav className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center">
             {/* Logo */}
-            <Link to={createPageUrl("Home")} className="krysta-brand text-black">
-              RARE FIND TALENT
+            <Link to={createPageUrl("Home")} className="flex items-center text-black hover:text-slate-700 transition-colors">
+              <Logo className="h-7 sm:h-8 w-auto" />
             </Link>
 
             {/* Desktop Navigation */}
@@ -159,12 +181,12 @@ export default function Layout({ children }) {
                 variant="ghost"
                 size="sm"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="text-black"
+                className="text-black h-12 w-12 touch-manipulation"
               >
                 {mobileMenuOpen ? (
-                  <X className="h-6 w-6" />
+                  <X className="h-7 w-7" />
                 ) : (
-                  <Menu className="h-6 w-6" />
+                  <Menu className="h-7 w-7" />
                 )}
               </Button>
             </div>

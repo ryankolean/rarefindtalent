@@ -137,7 +137,7 @@ export default function BookConsultation() {
       </style>
 
       {/* Header */}
-      <section className="px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
+      <section className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -155,7 +155,7 @@ export default function BookConsultation() {
       </section>
 
       {/* Form */}
-      <section className="px-4 sm:px-6 lg:px-8 pb-20 lg:pb-24">
+      <section className="px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16 lg:pb-20">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -164,14 +164,14 @@ export default function BookConsultation() {
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
             <Card className="border border-slate-200 shadow-sm overflow-hidden">
-              <CardHeader className="p-8 bg-slate-50 border-b border-slate-200">
-                <CardTitle className="text-xl font-semibold text-black">
+              <CardHeader className="p-4 sm:p-6 lg:p-8 bg-slate-50 border-b border-slate-200">
+                <CardTitle className="text-lg sm:text-xl font-semibold text-black">
                   Consultation Request
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-8">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-6">
+              <CardContent className="p-4 sm:p-6 lg:p-8">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <label htmlFor="full_name" className="form-label">Full Name *</label>
                       <Controller
@@ -181,7 +181,7 @@ export default function BookConsultation() {
                           <Input
                             {...field}
                             id="full_name"
-                            className={`h-11 ${errors.full_name ? 'border-red-500' : ''}`}
+                            className={`h-11 sm:h-12 text-base ${errors.full_name ? 'border-red-500' : ''}`}
                           />
                         )}
                       />
@@ -202,7 +202,7 @@ export default function BookConsultation() {
                             {...field}
                             id="email"
                             type="email"
-                            className={`h-11 ${errors.email ? 'border-red-500' : ''}`}
+                            className={`h-11 sm:h-12 text-base ${errors.email ? 'border-red-500' : ''}`}
                           />
                         )}
                       />
@@ -215,7 +215,7 @@ export default function BookConsultation() {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <label htmlFor="phone" className="form-label">Phone Number</label>
                       <Controller
@@ -226,7 +226,7 @@ export default function BookConsultation() {
                             {...field}
                             id="phone"
                             type="tel"
-                            className="h-11"
+                            className="h-11 sm:h-12 text-base"
                           />
                         )}
                       />
@@ -240,14 +240,14 @@ export default function BookConsultation() {
                           <Input
                             {...field}
                             id="company_name"
-                            className="h-11"
+                            className="h-11 sm:h-12 text-base"
                           />
                         )}
                       />
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <label htmlFor="job_title" className="form-label">Job Title</label>
                       <Controller
@@ -257,7 +257,7 @@ export default function BookConsultation() {
                           <Input
                             {...field}
                             id="job_title"
-                            className="h-11"
+                            className="h-11 sm:h-12 text-base"
                           />
                         )}
                       />
@@ -269,7 +269,7 @@ export default function BookConsultation() {
                         control={control}
                         render={({ field }) => (
                           <Select onValueChange={field.onChange} value={field.value}>
-                            <SelectTrigger className={`h-11 ${errors.inquiry_type ? 'border-red-500' : ''}`}>
+                            <SelectTrigger className={`h-11 sm:h-12 text-base ${errors.inquiry_type ? 'border-red-500' : ''}`}>
                               <SelectValue placeholder="Select service" />
                             </SelectTrigger>
                             <SelectContent>
@@ -291,7 +291,7 @@ export default function BookConsultation() {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <label className="form-label">Preferred Contact Method</label>
                       <Controller
@@ -299,7 +299,7 @@ export default function BookConsultation() {
                         control={control}
                         render={({ field }) => (
                           <Select onValueChange={field.onChange} value={field.value}>
-                            <SelectTrigger className="h-11">
+                            <SelectTrigger className="h-11 sm:h-12 text-base">
                               <SelectValue placeholder="Select preference" />
                             </SelectTrigger>
                             <SelectContent>
@@ -318,7 +318,7 @@ export default function BookConsultation() {
                         control={control}
                         render={({ field }) => (
                           <Select onValueChange={field.onChange} value={field.value}>
-                            <SelectTrigger className="h-11">
+                            <SelectTrigger className="h-11 sm:h-12 text-base">
                               <SelectValue placeholder="Select timeline" />
                             </SelectTrigger>
                             <SelectContent>
@@ -342,18 +342,18 @@ export default function BookConsultation() {
                         <Textarea
                           {...field}
                           id="message"
-                          className="h-32 resize-none"
+                          className="h-32 sm:h-36 resize-none text-base"
                           placeholder="Please describe your talent needs, specific roles you're looking to fill, or any questions you have about our services..."
                         />
                       )}
                     />
                   </div>
 
-                  <div className="pt-4">
+                  <div className="pt-2 sm:pt-4">
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full bg-black text-white hover:bg-slate-800 h-12 text-base font-medium transition-all duration-300 transform"
+                      className="w-full bg-black text-white hover:bg-slate-800 h-12 sm:h-14 text-base sm:text-lg font-medium transition-all duration-300 transform touch-manipulation"
                     >
                       {isSubmitting ? "Submitting..." : "Submit Consultation Request"}
                     </Button>
