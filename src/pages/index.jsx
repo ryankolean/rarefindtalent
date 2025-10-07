@@ -1,17 +1,21 @@
 import Layout from "./Layout.jsx";
 
 import Home from "./Home";
-
 import BookConsultation from "./BookConsultation";
+import About from "./About";
+import ContingencyPlacement from "./ContingencyPlacement";
+import ContractServices from "./ContractServices";
+import ResumeServices from "./ResumeServices";
 
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 const PAGES = {
-    
     Home: Home,
-    
     BookConsultation: BookConsultation,
-    
+    About: About,
+    ContingencyPlacement: ContingencyPlacement,
+    ContractServices: ContractServices,
+    ResumeServices: ResumeServices
 }
 
 function _getCurrentPage(url) {
@@ -34,15 +38,14 @@ function PagesContent() {
     
     return (
         <Layout currentPageName={currentPage}>
-            <Routes>            
-                
-                    <Route path="/" element={<Home />} />
-                
-                
+            <Routes>
+                <Route path="/" element={<Home />} />
                 <Route path="/Home" element={<Home />} />
-                
                 <Route path="/BookConsultation" element={<BookConsultation />} />
-                
+                <Route path="/About" element={<About />} />
+                <Route path="/ContingencyPlacement" element={<ContingencyPlacement />} />
+                <Route path="/ContractServices" element={<ContractServices />} />
+                <Route path="/ResumeServices" element={<ResumeServices />} />
             </Routes>
         </Layout>
     );
