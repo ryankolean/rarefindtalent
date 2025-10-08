@@ -19,7 +19,32 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const phoneRegex = /^[\d\s\-\(\)\+\.ext]+$/;
+const phoneRegex = /^[\+]?[\d\s\-\(\)\.\/]+$/;
+
+const getCountryDialCode = () => {
+  try {
+    const locale = navigator.language || 'en-US';
+    const region = locale.split('-')[1] || 'US';
+
+    const dialCodes = {
+      'US': '+1', 'CA': '+1', 'GB': '+44', 'AU': '+61', 'NZ': '+64',
+      'IE': '+353', 'ZA': '+27', 'IN': '+91', 'PK': '+92', 'BD': '+880',
+      'SG': '+65', 'MY': '+60', 'PH': '+63', 'ID': '+62', 'TH': '+66',
+      'VN': '+84', 'JP': '+81', 'KR': '+82', 'CN': '+86', 'TW': '+886',
+      'HK': '+852', 'MO': '+853', 'FR': '+33', 'DE': '+49', 'IT': '+39',
+      'ES': '+34', 'PT': '+351', 'NL': '+31', 'BE': '+32', 'CH': '+41',
+      'AT': '+43', 'SE': '+46', 'NO': '+47', 'DK': '+45', 'FI': '+358',
+      'PL': '+48', 'RU': '+7', 'UA': '+380', 'TR': '+90', 'GR': '+30',
+      'IL': '+972', 'SA': '+966', 'AE': '+971', 'EG': '+20', 'NG': '+234',
+      'KE': '+254', 'BR': '+55', 'MX': '+52', 'AR': '+54', 'CL': '+56',
+      'CO': '+57', 'PE': '+51', 'VE': '+58'
+    };
+
+    return dialCodes[region] || '+1';
+  } catch (error) {
+    return '+1';
+  }
+};
 
 const consultationSchema = z.object({
   full_name: z.string()
@@ -33,8 +58,8 @@ const consultationSchema = z.object({
   phone: z.string()
     .optional()
     .refine(
-      (val) => !val || val.length === 0 || (val.length >= 10 && phoneRegex.test(val)),
-      "Phone number should be in format: (555) 123-4567 or 555-123-4567"
+      (val) => !val || val.length === 0 || (val.length >= 8 && phoneRegex.test(val)),
+      "Please enter a valid phone number (e.g., +1 555-123-4567 or +44 20 1234 5678)"
     ),
   company_name: z.string().optional(),
   job_title: z.string().optional(),
@@ -103,6 +128,7 @@ export default function BookConsultation() {
   const [isRetrying, setIsRetrying] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [countryCode, setCountryCode] = useState('+1');
 
   const { control, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm({
     resolver: zodResolver(consultationSchema),
@@ -132,6 +158,11 @@ export default function BookConsultation() {
       }
     }
   }, [errors]);
+
+  useEffect(() => {
+    const detectedCode = getCountryDialCode();
+    setCountryCode(detectedCode);
+  }, []);
 
   useEffect(() => {
     if (Object.keys(errors).length > 0 && !isSubmitting) {
@@ -554,7 +585,7 @@ export default function BookConsultation() {
                             <Info className="h-3.5 w-3.5 text-slate-400 cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-xs">
-                            <p>Optional. We accept various formats like (555) 123-4567, 555-123-4567, or 555.123.4567</p>
+                            <p>Optional. Include country code for international numbers (e.g., {countryCode} 555-123-4567)</p>
                           </TooltipContent>
                         </Tooltip>
                       </div>
@@ -566,7 +597,7 @@ export default function BookConsultation() {
                             {...field}
                             id="phone"
                             type="tel"
-                            placeholder="(555) 123-4567"
+                            placeholder={`${countryCode} 555-123-4567`}
                             disabled={isSubmitting || isRetrying}
                             className={`h-11 sm:h-12 text-base ${errors.phone ? 'border-red-500' : ''} ${(isSubmitting || isRetrying) ? 'opacity-60 cursor-not-allowed' : ''}`}
                           />
@@ -579,7 +610,7 @@ export default function BookConsultation() {
                         </p>
                       )}
                       {!errors.phone && (
-                        <p className="text-xs text-slate-500 mt-1">Optional - Format: (555) 123-4567</p>
+                        <p className="text-xs text-slate-500 mt-1">Optional - Include country code: {countryCode} 555-123-4567</p>
                       )}
                     </div>
                     <div>
