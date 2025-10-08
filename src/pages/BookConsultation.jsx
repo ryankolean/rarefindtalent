@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, AlertCircle } from "lucide-react";
+import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,7 +20,7 @@ const consultationSchema = z.object({
   company_name: z.string().optional(),
   job_title: z.string().optional(),
   inquiry_type: z.string().min(1, "Please select a service interest"),
-  message: z.string().optional(),
+  message: z.string().max(1000, "Message must be 1000 characters or less").optional(),
   preferred_contact: z.string().default("email"),
   urgency: z.string().default("flexible")
 });
@@ -29,7 +29,7 @@ export default function BookConsultation() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedData, setSubmittedData] = useState(null);
 
-  const { control, handleSubmit, formState: { errors, isSubmitting }, reset, getValues } = useForm({
+  const { control, handleSubmit, formState: { errors, isSubmitting }, reset, watch } = useForm({
     resolver: zodResolver(consultationSchema),
     defaultValues: {
       full_name: "",
@@ -43,6 +43,10 @@ export default function BookConsultation() {
       urgency: "flexible"
     }
   });
+
+  const messageValue = watch("message") || "";
+  const messageLength = messageValue.length;
+  const maxMessageLength = 1000;
 
   const onSubmit = async (data) => {
     try {
@@ -150,9 +154,15 @@ export default function BookConsultation() {
           .form-label {
             font-size: 0.875rem;
             font-weight: 500;
-            color: #334155; /* slate-700 */
+            color: #334155;
             margin-bottom: 8px;
             display: block;
+          }
+
+          @media (max-width: 640px) {
+            .form-label {
+              font-size: 0.9375rem;
+            }
           }
         `}
       </style>
@@ -355,7 +365,12 @@ export default function BookConsultation() {
                   </div>
 
                   <div>
-                    <label htmlFor="message" className="form-label">Tell us about your needs</label>
+                    <div className="flex justify-between items-center mb-2">
+                      <label htmlFor="message" className="form-label mb-0">Tell us about your needs</label>
+                      <span className={`text-xs ${messageLength > maxMessageLength ? 'text-red-500 font-medium' : 'text-slate-500'}`}>
+                        {messageLength}/{maxMessageLength}
+                      </span>
+                    </div>
                     <Controller
                       name="message"
                       control={control}
@@ -363,20 +378,34 @@ export default function BookConsultation() {
                         <Textarea
                           {...field}
                           id="message"
-                          className="h-32 sm:h-36 resize-none text-base"
+                          maxLength={maxMessageLength}
+                          className={`h-32 sm:h-36 resize-none text-base ${errors.message ? 'border-red-500' : ''}`}
                           placeholder="Please describe your talent needs, specific roles you're looking to fill, or any questions you have about our services..."
                         />
                       )}
                     />
+                    {errors.message && (
+                      <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {errors.message.message}
+                      </p>
+                    )}
                   </div>
 
                   <div className="pt-2 sm:pt-4">
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full bg-black text-white hover:bg-slate-800 h-12 sm:h-14 text-base sm:text-lg font-medium transition-all duration-300 transform touch-manipulation"
+                      className="w-full bg-black text-white hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed h-12 sm:h-14 text-base sm:text-lg font-medium transition-all duration-300 transform touch-manipulation"
                     >
-                      {isSubmitting ? "Submitting..." : "Submit Consultation Request"}
+                      {isSubmitting ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          Submitting...
+                        </span>
+                      ) : (
+                        "Submit Consultation Request"
+                      )}
                     </Button>
                   </div>
                 </form>
