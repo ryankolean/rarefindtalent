@@ -1,17 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { ContactInquiry } from "@/api/contactInquiries";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { CheckCircle, AlertCircle, Loader2, Save, Info, CheckCircle2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const phoneRegex = /^[\d\s\-\(\)\+\.ext]+$/;
 
@@ -98,6 +104,9 @@ export default function BookConsultation() {
   const [isRetrying, setIsRetrying] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [autoSaveStatus, setAutoSaveStatus] = useState('idle');
+  const autoSaveTimerRef = useRef(null);
+  const lastSavedDataRef = useRef(null);
 
   const { control, handleSubmit, formState: { errors, isSubmitting, touchedFields }, reset, watch, setValue, trigger } = useForm({
     resolver: zodResolver(consultationSchema),
@@ -121,6 +130,38 @@ export default function BookConsultation() {
   const messageLength = messageValue.length;
   const maxMessageLength = 1000;
 
+  const calculateFormProgress = () => {
+    const fields = ['full_name', 'email', 'inquiry_type'];
+    const optionalFields = ['phone', 'company_name', 'job_title', 'message'];
+    const allFields = [...fields, ...optionalFields];
+
+    const filledFields = allFields.filter(field => {
+      const value = formValues[field];
+      return value && value.trim() !== '';
+    });
+
+    return Math.round((filledFields.length / allFields.length) * 100);
+  };
+
+  const formProgress = calculateFormProgress();
+
+  const scrollToError = useCallback(() => {
+    const firstErrorField = Object.keys(errors)[0];
+    if (firstErrorField) {
+      const element = document.getElementById(firstErrorField);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element.focus();
+      }
+    }
+  }, [errors]);
+
+  useEffect(() => {
+    if (Object.keys(errors).length > 0 && !isSubmitting) {
+      scrollToError();
+    }
+  }, [errors, isSubmitting, scrollToError]);
+
   useEffect(() => {
     const savedData = localStorage.getItem(FORM_STORAGE_KEY);
     if (savedData) {
@@ -139,15 +180,54 @@ export default function BookConsultation() {
     }
   }, [setValue]);
 
-  useEffect(() => {
-    const hasData = Object.values(formValues).some(value =>
-      value && value !== "consultation" && value !== "email" && value !== "flexible"
-    );
-
-    if (hasData && !isSubmitted) {
-      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(formValues));
+  const debouncedAutoSave = useCallback((data) => {
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
     }
-  }, [formValues, isSubmitted]);
+
+    const dataString = JSON.stringify(data);
+    if (dataString === lastSavedDataRef.current) {
+      return;
+    }
+
+    setAutoSaveStatus('saving');
+
+    autoSaveTimerRef.current = setTimeout(() => {
+      try {
+        const hasData = Object.values(data).some(value =>
+          value && value !== "consultation" && value !== "email" && value !== "flexible"
+        );
+
+        if (hasData && !isSubmitted) {
+          localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(data));
+          lastSavedDataRef.current = dataString;
+          setAutoSaveStatus('saved');
+
+          setTimeout(() => {
+            setAutoSaveStatus('idle');
+          }, 2000);
+        } else {
+          setAutoSaveStatus('idle');
+        }
+      } catch (error) {
+        console.error('Auto-save failed:', error);
+        setAutoSaveStatus('error');
+        setTimeout(() => {
+          setAutoSaveStatus('idle');
+        }, 2000);
+      }
+    }, 1000);
+  }, [isSubmitted]);
+
+  useEffect(() => {
+    debouncedAutoSave(formValues);
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [formValues, debouncedAutoSave]);
 
   const submitWithRetry = async (data, attempt = 1) => {
     try {
@@ -390,7 +470,7 @@ export default function BookConsultation() {
             font-weight: 600;
             letter-spacing: -1px;
           }
-          
+
           .form-label {
             font-size: 0.875rem;
             font-weight: 500;
@@ -403,6 +483,33 @@ export default function BookConsultation() {
             .form-label {
               font-size: 0.9375rem;
             }
+
+            /* Enhanced touch targets for mobile */
+            button[role="combobox"],
+            input,
+            textarea {
+              min-height: 48px;
+            }
+
+            /* Better spacing on mobile */
+            .space-y-4 > * + * {
+              margin-top: 1.5rem;
+            }
+          }
+
+          /* Keyboard navigation focus styles */
+          input:focus-visible,
+          textarea:focus-visible,
+          button:focus-visible,
+          [role="combobox"]:focus-visible {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+            border-color: #3b82f6;
+          }
+
+          /* Smooth scroll behavior for error navigation */
+          html {
+            scroll-behavior: smooth;
           }
         `}
       </style>
@@ -436,12 +543,58 @@ export default function BookConsultation() {
           >
             <Card className="border border-slate-200 shadow-sm overflow-hidden">
               <CardHeader className="p-4 sm:p-6 lg:p-8 bg-slate-50 border-b border-slate-200">
-                <CardTitle className="text-lg sm:text-xl font-semibold text-black">
-                  Consultation Request
-                </CardTitle>
+                <div className="flex items-center justify-between mb-4">
+                  <CardTitle className="text-lg sm:text-xl font-semibold text-black">
+                    Consultation Request
+                  </CardTitle>
+                  <AnimatePresence>
+                    {autoSaveStatus !== 'idle' && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="flex items-center gap-2 text-sm"
+                      >
+                        {autoSaveStatus === 'saving' && (
+                          <>
+                            <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-500" />
+                            <span className="text-slate-600">Saving...</span>
+                          </>
+                        )}
+                        {autoSaveStatus === 'saved' && (
+                          <>
+                            <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
+                            <span className="text-green-700">Saved</span>
+                          </>
+                        )}
+                        {autoSaveStatus === 'error' && (
+                          <>
+                            <AlertCircle className="h-3.5 w-3.5 text-red-500" />
+                            <span className="text-red-600">Save failed</span>
+                          </>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs text-slate-600">
+                    <span>Form Completion</span>
+                    <span className="font-medium">{formProgress}%</span>
+                  </div>
+                  <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${formProgress}%` }}
+                      transition={{ duration: 0.5, ease: "easeOut" }}
+                    />
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="p-4 sm:p-6 lg:p-8">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+                <TooltipProvider>
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
                   {(isSubmitting || isRetrying) && (
                     <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 rounded-lg pointer-events-none" />
                   )}
@@ -530,7 +683,17 @@ export default function BookConsultation() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div>
-                      <label htmlFor="phone" className="form-label">Phone Number</label>
+                      <div className="flex items-center gap-2 mb-2">
+                        <label htmlFor="phone" className="form-label mb-0">Phone Number</label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-3.5 w-3.5 text-slate-400 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p>Optional. We accept various formats like (555) 123-4567, 555-123-4567, or 555.123.4567</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                       <Controller
                         name="phone"
                         control={control}
@@ -664,9 +827,31 @@ export default function BookConsultation() {
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <label htmlFor="message" className="form-label mb-0">Tell us about your needs</label>
-                      <span className={`text-xs ${messageLength > maxMessageLength ? 'text-red-500 font-medium' : 'text-slate-500'}`}>
-                        {messageLength}/{maxMessageLength}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-medium transition-colors ${
+                          messageLength > maxMessageLength ? 'text-red-500' :
+                          messageLength > maxMessageLength * 0.9 ? 'text-orange-500' :
+                          messageLength > maxMessageLength * 0.7 ? 'text-blue-500' :
+                          'text-slate-500'
+                        }`}>
+                          {messageLength}/{maxMessageLength}
+                        </span>
+                        {messageLength > 0 && (
+                          <div className="w-12 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                            <motion.div
+                              className={`h-full transition-colors ${
+                                messageLength > maxMessageLength ? 'bg-red-500' :
+                                messageLength > maxMessageLength * 0.9 ? 'bg-orange-500' :
+                                messageLength > maxMessageLength * 0.7 ? 'bg-blue-500' :
+                                'bg-slate-400'
+                              }`}
+                              initial={{ width: 0 }}
+                              animate={{ width: `${Math.min((messageLength / maxMessageLength) * 100, 100)}%` }}
+                              transition={{ duration: 0.2 }}
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <Controller
                       name="message"
@@ -717,6 +902,7 @@ export default function BookConsultation() {
                     </Button>
                   </div>
                 </form>
+                </TooltipProvider>
               </CardContent>
             </Card>
           </motion.div>
