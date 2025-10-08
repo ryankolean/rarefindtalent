@@ -163,51 +163,69 @@ export default function BookConsultation() {
   }, [errors, isSubmitting, scrollToError]);
 
   useEffect(() => {
+    if (hasRestoredRef.current) return;
+
     const savedData = localStorage.getItem(FORM_STORAGE_KEY);
     if (savedData) {
       try {
+        isRestoringRef.current = true;
         const parsedData = JSON.parse(savedData);
+
         Object.keys(parsedData).forEach(key => {
-          setValue(key, parsedData[key]);
+          setValue(key, parsedData[key], { shouldValidate: false });
         });
-        toast.info('Draft restored', {
-          description: 'We restored your previous form data.',
-          duration: 3000
-        });
+
+        lastSavedDataRef.current = savedData;
+        hasRestoredRef.current = true;
+
+        setTimeout(() => {
+          isRestoringRef.current = false;
+          toast.info('Draft restored', {
+            description: 'We restored your previous form data.',
+            duration: 3000
+          });
+        }, 100);
       } catch (error) {
         console.error('Failed to restore form data:', error);
+        isRestoringRef.current = false;
       }
+    } else {
+      hasRestoredRef.current = true;
     }
   }, [setValue]);
 
-  const debouncedAutoSave = useCallback((data) => {
+  useEffect(() => {
+    if (isRestoringRef.current || !hasRestoredRef.current) {
+      return;
+    }
+
     if (autoSaveTimerRef.current) {
       clearTimeout(autoSaveTimerRef.current);
     }
 
-    const dataString = JSON.stringify(data);
+    const dataString = JSON.stringify(formValues);
     if (dataString === lastSavedDataRef.current) {
       return;
     }
 
-    setAutoSaveStatus('saving');
-
     autoSaveTimerRef.current = setTimeout(() => {
       try {
-        const hasData = Object.values(data).some(value =>
+        const hasData = Object.values(formValues).some(value =>
           value && value !== "consultation" && value !== "email" && value !== "flexible"
         );
 
         if (hasData && !isSubmitted) {
-          localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(data));
-          lastSavedDataRef.current = dataString;
-          setAutoSaveStatus('saved');
+          setAutoSaveStatus('saving');
 
-          setTimeout(() => {
-            setAutoSaveStatus('idle');
-          }, 2000);
-        } else {
-          setAutoSaveStatus('idle');
+          requestAnimationFrame(() => {
+            localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(formValues));
+            lastSavedDataRef.current = dataString;
+            setAutoSaveStatus('saved');
+
+            setTimeout(() => {
+              setAutoSaveStatus('idle');
+            }, 2000);
+          });
         }
       } catch (error) {
         console.error('Auto-save failed:', error);
@@ -217,17 +235,13 @@ export default function BookConsultation() {
         }, 2000);
       }
     }, 1000);
-  }, [isSubmitted]);
-
-  useEffect(() => {
-    debouncedAutoSave(formValues);
 
     return () => {
       if (autoSaveTimerRef.current) {
         clearTimeout(autoSaveTimerRef.current);
       }
     };
-  }, [formValues, debouncedAutoSave]);
+  }, [formValues, isSubmitted]);
 
   const submitWithRetry = async (data, attempt = 1) => {
     try {
