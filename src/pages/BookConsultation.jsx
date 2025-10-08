@@ -13,10 +13,17 @@ import * as z from "zod";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
+const phoneRegex = /^[\d\s\-\(\)\+\.ext]+$/;
+
 const consultationSchema = z.object({
   full_name: z.string().min(2, "Full name must be at least 2 characters").max(100, "Full name is too long"),
   email: z.string().email("Please enter a valid email address"),
-  phone: z.string().optional(),
+  phone: z.string()
+    .optional()
+    .refine(
+      (val) => !val || val.length === 0 || (val.length >= 10 && phoneRegex.test(val)),
+      "Please enter a valid phone number (minimum 10 digits)"
+    ),
   company_name: z.string().optional(),
   job_title: z.string().optional(),
   inquiry_type: z.string().min(1, "Please select a service interest"),
@@ -405,10 +412,17 @@ export default function BookConsultation() {
                             {...field}
                             id="phone"
                             type="tel"
-                            className="h-11 sm:h-12 text-base"
+                            placeholder="(555) 123-4567"
+                            className={`h-11 sm:h-12 text-base ${errors.phone ? 'border-red-500' : ''}`}
                           />
                         )}
                       />
+                      {errors.phone && (
+                        <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          {errors.phone.message}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label htmlFor="company_name" className="form-label">Company Name</label>
