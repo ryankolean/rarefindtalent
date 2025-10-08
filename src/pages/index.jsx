@@ -7,6 +7,8 @@ import ContingencyPlacement from "./ContingencyPlacement";
 import ContractServices from "./ContractServices";
 import ResumeServices from "./ResumeServices";
 import Pricing from "./Pricing";
+import NotFound from "./NotFound";
+import ErrorBoundary from "./ErrorBoundary";
 
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import GoogleAnalytics from "@/components/GoogleAnalytics";
@@ -50,6 +52,7 @@ function PagesContent() {
                 <Route path="/ContractServices" element={<ContractServices />} />
                 <Route path="/ResumeServices" element={<ResumeServices />} />
                 <Route path="/Pricing" element={<Pricing />} />
+                <Route path="*" element={<NotFound />} />
             </Routes>
         </Layout>
     );
@@ -57,9 +60,11 @@ function PagesContent() {
 
 export default function Pages() {
     return (
-        <Router>
-            <GoogleAnalytics measurementId="G-XXXXXXXXXX" />
-            <PagesContent />
-        </Router>
+        <ErrorBoundary>
+            <Router>
+                <GoogleAnalytics measurementId="G-XXXXXXXXXX" />
+                <PagesContent />
+            </Router>
+        </ErrorBoundary>
     );
 }

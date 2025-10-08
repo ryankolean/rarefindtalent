@@ -66,19 +66,26 @@ export default function NewsletterSignup({ compact = false }) {
 
   if (compact) {
     return (
-      <form onSubmit={handleSubmit} className="flex gap-2 w-full max-w-md">
+      <form onSubmit={handleSubmit} className="flex gap-2 w-full max-w-md" aria-label="Newsletter subscription">
+        <label htmlFor="newsletter-email-compact" className="sr-only">
+          Email address
+        </label>
         <Input
+          id="newsletter-email-compact"
           type="email"
           placeholder="Enter your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={isSubmitting}
+          required
+          aria-required="true"
           className="flex-1 h-10 text-sm"
         />
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="bg-black text-white hover:bg-slate-800 h-10 px-4 text-sm whitespace-nowrap"
+          aria-busy={isSubmitting}
+          className="bg-black text-white hover:bg-slate-800 h-10 px-4 text-sm whitespace-nowrap disabled:opacity-50"
         >
           {isSubmitting ? "Subscribing..." : "Subscribe"}
         </Button>
@@ -104,19 +111,26 @@ export default function NewsletterSignup({ compact = false }) {
           </p>
           <Card className="border-slate-700 bg-slate-800/50 backdrop-blur">
             <CardContent className="p-6 sm:p-8">
-              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
+              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4" aria-label="Newsletter subscription">
+                <label htmlFor="newsletter-email" className="sr-only">
+                  Email address
+                </label>
                 <Input
+                  id="newsletter-email"
                   type="email"
                   placeholder="Enter your email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isSubmitting}
+                  required
+                  aria-required="true"
                   className="flex-1 h-12 bg-white/10 border-slate-600 text-white placeholder:text-slate-400 focus:border-blue-400"
                 />
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-blue-600 text-white hover:bg-blue-700 h-12 px-8 text-base font-medium whitespace-nowrap"
+                  aria-busy={isSubmitting}
+                  className="bg-blue-600 text-white hover:bg-blue-700 h-12 px-8 text-base font-medium whitespace-nowrap disabled:opacity-50"
                 >
                   {isSubmitting ? "Subscribing..." : "Subscribe Now"}
                 </Button>
