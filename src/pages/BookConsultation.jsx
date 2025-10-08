@@ -104,10 +104,9 @@ export default function BookConsultation() {
   const [showProgress, setShowProgress] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const { control, handleSubmit, formState: { errors, isSubmitting, touchedFields }, reset, watch, setValue, trigger } = useForm({
+  const { control, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm({
     resolver: zodResolver(consultationSchema),
-    mode: "onBlur",
-    reValidateMode: "onChange",
+    mode: "onSubmit",
     defaultValues: {
       full_name: "",
       email: "",
@@ -121,25 +120,7 @@ export default function BookConsultation() {
     }
   });
 
-  const formValues = watch();
-  const messageValue = watch("message") || "";
-  const messageLength = messageValue.length;
   const maxMessageLength = 1000;
-
-  const calculateFormProgress = () => {
-    const fields = ['full_name', 'email', 'inquiry_type'];
-    const optionalFields = ['phone', 'company_name', 'job_title', 'message'];
-    const allFields = [...fields, ...optionalFields];
-
-    const filledFields = allFields.filter(field => {
-      const value = formValues[field];
-      return value && value.trim() !== '';
-    });
-
-    return Math.round((filledFields.length / allFields.length) * 100);
-  };
-
-  const formProgress = calculateFormProgress();
 
   const scrollToError = useCallback(() => {
     const firstErrorField = Object.keys(errors)[0];
@@ -471,23 +452,9 @@ export default function BookConsultation() {
           >
             <Card className="border border-slate-200 shadow-sm overflow-hidden">
               <CardHeader className="p-4 sm:p-6 lg:p-8 bg-slate-50 border-b border-slate-200">
-                <CardTitle className="text-lg sm:text-xl font-semibold text-black mb-4">
+                <CardTitle className="text-lg sm:text-xl font-semibold text-black">
                   Consultation Request
                 </CardTitle>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs text-slate-600">
-                    <span>Form Completion</span>
-                    <span className="font-medium">{formProgress}%</span>
-                  </div>
-                  <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                    <motion.div
-                      className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${formProgress}%` }}
-                      transition={{ duration: 0.5, ease: "easeOut" }}
-                    />
-                  </div>
-                </div>
               </CardHeader>
               <CardContent className="p-4 sm:p-6 lg:p-8">
                 <TooltipProvider>
@@ -722,34 +689,7 @@ export default function BookConsultation() {
                   </div>
 
                   <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <label htmlFor="message" className="form-label mb-0">Tell us about your needs</label>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xs font-medium transition-colors ${
-                          messageLength > maxMessageLength ? 'text-red-500' :
-                          messageLength > maxMessageLength * 0.9 ? 'text-orange-500' :
-                          messageLength > maxMessageLength * 0.7 ? 'text-blue-500' :
-                          'text-slate-500'
-                        }`}>
-                          {messageLength}/{maxMessageLength}
-                        </span>
-                        {messageLength > 0 && (
-                          <div className="w-12 h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                            <motion.div
-                              className={`h-full transition-colors ${
-                                messageLength > maxMessageLength ? 'bg-red-500' :
-                                messageLength > maxMessageLength * 0.9 ? 'bg-orange-500' :
-                                messageLength > maxMessageLength * 0.7 ? 'bg-blue-500' :
-                                'bg-slate-400'
-                              }`}
-                              initial={{ width: 0 }}
-                              animate={{ width: `${Math.min((messageLength / maxMessageLength) * 100, 100)}%` }}
-                              transition={{ duration: 0.2 }}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    <label htmlFor="message" className="form-label">Tell us about your needs</label>
                     <Controller
                       name="message"
                       control={control}
