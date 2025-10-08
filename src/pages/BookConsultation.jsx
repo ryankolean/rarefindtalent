@@ -85,6 +85,8 @@ export default function BookConsultation() {
   const [submittedData, setSubmittedData] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
+  const [showProgress, setShowProgress] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const { control, handleSubmit, formState: { errors, isSubmitting }, reset, watch, setValue } = useForm({
     resolver: zodResolver(consultationSchema),
@@ -175,6 +177,8 @@ export default function BookConsultation() {
   };
 
   const onSubmit = async (data) => {
+    let progressTimer;
+
     try {
       if (!navigator.onLine) {
         toast.error('No internet connection', {
@@ -187,21 +191,34 @@ export default function BookConsultation() {
         return;
       }
 
+      progressTimer = setTimeout(() => {
+        setShowProgress(true);
+      }, 1500);
+
       const result = await submitWithRetry(data);
       setSubmittedData(result);
 
       await sendEmailNotification(data);
 
-      localStorage.removeItem(FORM_STORAGE_KEY);
-      setIsSubmitted(true);
-      setRetryCount(0);
-      reset();
+      clearTimeout(progressTimer);
+      setShowProgress(false);
+      setSubmitSuccess(true);
+
+      setTimeout(() => {
+        localStorage.removeItem(FORM_STORAGE_KEY);
+        setIsSubmitted(true);
+        setRetryCount(0);
+        reset();
+      }, 800);
 
       toast.success("Consultation request submitted successfully!", {
         description: "We'll be in touch within 24 hours."
       });
     } catch (error) {
       console.error("Submission error:", error);
+      clearTimeout(progressTimer);
+      setShowProgress(false);
+      setSubmitSuccess(false);
 
       const errorMessage = getErrorMessage(error);
       const canRetry = retryCount < MAX_RETRIES && (!error.status || error.status >= 500 || !navigator.onLine);
@@ -411,6 +428,9 @@ export default function BookConsultation() {
               </CardHeader>
               <CardContent className="p-4 sm:p-6 lg:p-8">
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+                  {(isSubmitting || isRetrying) && (
+                    <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 rounded-lg pointer-events-none" />
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <label htmlFor="full_name" className="form-label">Full Name *</label>
@@ -421,7 +441,8 @@ export default function BookConsultation() {
                           <Input
                             {...field}
                             id="full_name"
-                            className={`h-11 sm:h-12 text-base ${errors.full_name ? 'border-red-500' : ''}`}
+                            disabled={isSubmitting || isRetrying}
+                            className={`h-11 sm:h-12 text-base ${errors.full_name ? 'border-red-500' : ''} ${(isSubmitting || isRetrying) ? 'opacity-60 cursor-not-allowed' : ''}`}
                           />
                         )}
                       />
@@ -442,7 +463,8 @@ export default function BookConsultation() {
                             {...field}
                             id="email"
                             type="email"
-                            className={`h-11 sm:h-12 text-base ${errors.email ? 'border-red-500' : ''}`}
+                            disabled={isSubmitting || isRetrying}
+                            className={`h-11 sm:h-12 text-base ${errors.email ? 'border-red-500' : ''} ${(isSubmitting || isRetrying) ? 'opacity-60 cursor-not-allowed' : ''}`}
                           />
                         )}
                       />
@@ -467,7 +489,8 @@ export default function BookConsultation() {
                             id="phone"
                             type="tel"
                             placeholder="(555) 123-4567"
-                            className={`h-11 sm:h-12 text-base ${errors.phone ? 'border-red-500' : ''}`}
+                            disabled={isSubmitting || isRetrying}
+                            className={`h-11 sm:h-12 text-base ${errors.phone ? 'border-red-500' : ''} ${(isSubmitting || isRetrying) ? 'opacity-60 cursor-not-allowed' : ''}`}
                           />
                         )}
                       />
@@ -487,7 +510,8 @@ export default function BookConsultation() {
                           <Input
                             {...field}
                             id="company_name"
-                            className="h-11 sm:h-12 text-base"
+                            disabled={isSubmitting || isRetrying}
+                            className={`h-11 sm:h-12 text-base ${(isSubmitting || isRetrying) ? 'opacity-60 cursor-not-allowed' : ''}`}
                           />
                         )}
                       />
@@ -504,7 +528,8 @@ export default function BookConsultation() {
                           <Input
                             {...field}
                             id="job_title"
-                            className="h-11 sm:h-12 text-base"
+                            disabled={isSubmitting || isRetrying}
+                            className={`h-11 sm:h-12 text-base ${(isSubmitting || isRetrying) ? 'opacity-60 cursor-not-allowed' : ''}`}
                           />
                         )}
                       />
@@ -515,8 +540,8 @@ export default function BookConsultation() {
                         name="inquiry_type"
                         control={control}
                         render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <SelectTrigger className={`h-11 sm:h-12 text-base ${errors.inquiry_type ? 'border-red-500' : ''}`}>
+                          <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting || isRetrying}>
+                            <SelectTrigger className={`h-11 sm:h-12 text-base ${errors.inquiry_type ? 'border-red-500' : ''} ${(isSubmitting || isRetrying) ? 'opacity-60 cursor-not-allowed' : ''}`}>
                               <SelectValue placeholder="Select service" />
                             </SelectTrigger>
                             <SelectContent>
@@ -545,8 +570,8 @@ export default function BookConsultation() {
                         name="preferred_contact"
                         control={control}
                         render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <SelectTrigger className="h-11 sm:h-12 text-base">
+                          <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting || isRetrying}>
+                            <SelectTrigger className={`h-11 sm:h-12 text-base ${(isSubmitting || isRetrying) ? 'opacity-60 cursor-not-allowed' : ''}`}>
                               <SelectValue placeholder="Select preference" />
                             </SelectTrigger>
                             <SelectContent>
@@ -564,8 +589,8 @@ export default function BookConsultation() {
                         name="urgency"
                         control={control}
                         render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <SelectTrigger className="h-11 sm:h-12 text-base">
+                          <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting || isRetrying}>
+                            <SelectTrigger className={`h-11 sm:h-12 text-base ${(isSubmitting || isRetrying) ? 'opacity-60 cursor-not-allowed' : ''}`}>
                               <SelectValue placeholder="Select timeline" />
                             </SelectTrigger>
                             <SelectContent>
@@ -595,7 +620,8 @@ export default function BookConsultation() {
                           {...field}
                           id="message"
                           maxLength={maxMessageLength}
-                          className={`h-32 sm:h-36 resize-none text-base ${errors.message ? 'border-red-500' : ''}`}
+                          disabled={isSubmitting || isRetrying}
+                          className={`h-32 sm:h-36 resize-none text-base ${errors.message ? 'border-red-500' : ''} ${(isSubmitting || isRetrying) ? 'opacity-60 cursor-not-allowed' : ''}`}
                           placeholder="Please describe your talent needs, specific roles you're looking to fill, or any questions you have about our services..."
                         />
                       )}
@@ -609,18 +635,28 @@ export default function BookConsultation() {
                   </div>
 
                   <div className="pt-2 sm:pt-4">
+                    {showProgress && (
+                      <div className="mb-3 text-center">
+                        <p className="text-sm text-slate-600 animate-pulse">Processing your request...</p>
+                      </div>
+                    )}
                     <Button
                       type="submit"
-                      disabled={isSubmitting || isRetrying}
-                      className="w-full bg-black text-white hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed h-12 sm:h-14 text-base sm:text-lg font-medium transition-all duration-300 transform touch-manipulation"
+                      disabled={isSubmitting || isRetrying || submitSuccess}
+                      className="w-full bg-black text-white hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed h-12 sm:h-14 text-base sm:text-lg font-medium transition-all duration-300 transform touch-manipulation relative overflow-hidden"
                     >
-                      {isSubmitting || isRetrying ? (
+                      {submitSuccess ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <CheckCircle className="h-5 w-5" />
+                          Request Sent!
+                        </span>
+                      ) : isSubmitting || isRetrying ? (
                         <span className="flex items-center justify-center gap-2">
                           <Loader2 className="h-5 w-5 animate-spin" />
-                          Submitting...
+                          {isRetrying ? `Retrying (${retryCount}/${MAX_RETRIES})...` : 'Sending Request...'}
                         </span>
                       ) : (
-                        "Submit Consultation Request"
+                        "Schedule Consultation"
                       )}
                     </Button>
                   </div>
