@@ -69,6 +69,13 @@ const getErrorMessage = (error) => {
     return 'No internet connection. Please check your network and try again.';
   }
 
+  if (error.rateLimited || error.status === 429) {
+    if (error.message && error.message.includes('minute')) {
+      return error.message;
+    }
+    return 'Too many submission attempts. Please wait before trying again.';
+  }
+
   if (error.message?.includes('timeout')) {
     return 'Request timeout. Your connection may be slow. Please try again.';
   }
@@ -79,10 +86,6 @@ const getErrorMessage = (error) => {
 
   if (error.status >= 500) {
     return 'Server error. Our team has been notified. Please try again in a few moments.';
-  }
-
-  if (error.status === 429) {
-    return 'Too many requests. Please wait a moment and try again.';
   }
 
   return error.message || 'An unexpected error occurred. Please try again.';
@@ -231,11 +234,12 @@ export default function BookConsultation() {
       setSubmitSuccess(false);
 
       const errorMessage = getErrorMessage(error);
-      const canRetry = retryCount < MAX_RETRIES && (!error.status || error.status >= 500 || !navigator.onLine);
+      const isRateLimited = error.rateLimited || error.status === 429;
+      const canRetry = !isRateLimited && retryCount < MAX_RETRIES && (!error.status || error.status >= 500 || !navigator.onLine);
 
-      toast.error("Failed to submit consultation request", {
+      toast.error(isRateLimited ? "Rate Limit Exceeded" : "Failed to submit consultation request", {
         description: errorMessage,
-        duration: 6000,
+        duration: isRateLimited ? 8000 : 6000,
         action: canRetry ? {
           label: 'Retry',
           onClick: () => handleRetry(data)
