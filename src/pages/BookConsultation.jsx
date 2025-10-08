@@ -16,18 +16,26 @@ import { Toaster } from "@/components/ui/sonner";
 const phoneRegex = /^[\d\s\-\(\)\+\.ext]+$/;
 
 const consultationSchema = z.object({
-  full_name: z.string().min(2, "Full name must be at least 2 characters").max(100, "Full name is too long"),
-  email: z.string().email("Please enter a valid email address"),
+  full_name: z.string()
+    .min(1, "Please enter your full name")
+    .min(2, "Full name must be at least 2 characters")
+    .max(100, "Full name is too long (maximum 100 characters)")
+    .regex(/^[a-zA-Z\s\-'.]+$/, "Full name should only contain letters, spaces, hyphens, and apostrophes"),
+  email: z.string()
+    .min(1, "Please enter your email address")
+    .email("Please enter a valid email address (e.g., name@example.com)"),
   phone: z.string()
     .optional()
     .refine(
       (val) => !val || val.length === 0 || (val.length >= 10 && phoneRegex.test(val)),
-      "Please enter a valid phone number (minimum 10 digits)"
+      "Phone number should be in format: (555) 123-4567 or 555-123-4567"
     ),
   company_name: z.string().optional(),
   job_title: z.string().optional(),
-  inquiry_type: z.string().min(1, "Please select a service interest"),
-  message: z.string().max(1000, "Message must be 1000 characters or less").optional(),
+  inquiry_type: z.string().min(1, "Please select a service of interest"),
+  message: z.string()
+    .max(1000, "Message is too long (maximum 1000 characters)")
+    .optional(),
   preferred_contact: z.string().default("email"),
   urgency: z.string().default("flexible")
 });
@@ -88,8 +96,10 @@ export default function BookConsultation() {
   const [showProgress, setShowProgress] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const { control, handleSubmit, formState: { errors, isSubmitting }, reset, watch, setValue } = useForm({
+  const { control, handleSubmit, formState: { errors, isSubmitting, touchedFields }, reset, watch, setValue, trigger } = useForm({
     resolver: zodResolver(consultationSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
     defaultValues: {
       full_name: "",
       email: "",
@@ -431,6 +441,41 @@ export default function BookConsultation() {
                   {(isSubmitting || isRetrying) && (
                     <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 rounded-lg pointer-events-none" />
                   )}
+
+                  {Object.keys(errors).length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg"
+                    >
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <h3 className="text-sm font-semibold text-red-800 mb-2">
+                            Please correct the following errors:
+                          </h3>
+                          <ul className="space-y-1">
+                            {errors.full_name && (
+                              <li className="text-sm text-red-700">• {errors.full_name.message}</li>
+                            )}
+                            {errors.email && (
+                              <li className="text-sm text-red-700">• {errors.email.message}</li>
+                            )}
+                            {errors.phone && (
+                              <li className="text-sm text-red-700">• {errors.phone.message}</li>
+                            )}
+                            {errors.inquiry_type && (
+                              <li className="text-sm text-red-700">• {errors.inquiry_type.message}</li>
+                            )}
+                            {errors.message && (
+                              <li className="text-sm text-red-700">• {errors.message.message}</li>
+                            )}
+                          </ul>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <label htmlFor="full_name" className="form-label">Full Name *</label>
@@ -441,6 +486,7 @@ export default function BookConsultation() {
                           <Input
                             {...field}
                             id="full_name"
+                            placeholder="John Smith"
                             disabled={isSubmitting || isRetrying}
                             className={`h-11 sm:h-12 text-base ${errors.full_name ? 'border-red-500' : ''} ${(isSubmitting || isRetrying) ? 'opacity-60 cursor-not-allowed' : ''}`}
                           />
@@ -463,6 +509,7 @@ export default function BookConsultation() {
                             {...field}
                             id="email"
                             type="email"
+                            placeholder="john@example.com"
                             disabled={isSubmitting || isRetrying}
                             className={`h-11 sm:h-12 text-base ${errors.email ? 'border-red-500' : ''} ${(isSubmitting || isRetrying) ? 'opacity-60 cursor-not-allowed' : ''}`}
                           />
@@ -500,6 +547,9 @@ export default function BookConsultation() {
                           {errors.phone.message}
                         </p>
                       )}
+                      {!errors.phone && (
+                        <p className="text-xs text-slate-500 mt-1">Optional - Format: (555) 123-4567</p>
+                      )}
                     </div>
                     <div>
                       <label htmlFor="company_name" className="form-label">Company Name</label>
@@ -510,6 +560,7 @@ export default function BookConsultation() {
                           <Input
                             {...field}
                             id="company_name"
+                            placeholder="Acme Corporation"
                             disabled={isSubmitting || isRetrying}
                             className={`h-11 sm:h-12 text-base ${(isSubmitting || isRetrying) ? 'opacity-60 cursor-not-allowed' : ''}`}
                           />
@@ -528,6 +579,7 @@ export default function BookConsultation() {
                           <Input
                             {...field}
                             id="job_title"
+                            placeholder="HR Manager"
                             disabled={isSubmitting || isRetrying}
                             className={`h-11 sm:h-12 text-base ${(isSubmitting || isRetrying) ? 'opacity-60 cursor-not-allowed' : ''}`}
                           />
