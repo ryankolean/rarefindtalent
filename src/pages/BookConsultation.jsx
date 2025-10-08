@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, AlertCircle, Loader2, Save, Info, CheckCircle2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle, AlertCircle, Loader2, Info } from "lucide-react";
+import { motion } from "framer-motion";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -46,7 +46,6 @@ const consultationSchema = z.object({
   urgency: z.string().default("flexible")
 });
 
-const FORM_STORAGE_KEY = 'consultation_form_draft';
 const REQUEST_TIMEOUT = 30000;
 const MAX_RETRIES = 3;
 
@@ -104,11 +103,6 @@ export default function BookConsultation() {
   const [isRetrying, setIsRetrying] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [autoSaveStatus, setAutoSaveStatus] = useState('idle');
-  const autoSaveTimerRef = useRef(null);
-  const lastSavedDataRef = useRef(null);
-  const isRestoringRef = useRef(false);
-  const hasRestoredRef = useRef(false);
 
   const { control, handleSubmit, formState: { errors, isSubmitting, touchedFields }, reset, watch, setValue, trigger } = useForm({
     resolver: zodResolver(consultationSchema),
@@ -163,87 +157,6 @@ export default function BookConsultation() {
       scrollToError();
     }
   }, [errors, isSubmitting, scrollToError]);
-
-  useEffect(() => {
-    if (hasRestoredRef.current) return;
-
-    const savedData = localStorage.getItem(FORM_STORAGE_KEY);
-    if (savedData) {
-      try {
-        isRestoringRef.current = true;
-        const parsedData = JSON.parse(savedData);
-
-        Object.keys(parsedData).forEach(key => {
-          setValue(key, parsedData[key], { shouldValidate: false });
-        });
-
-        lastSavedDataRef.current = savedData;
-        hasRestoredRef.current = true;
-
-        setTimeout(() => {
-          isRestoringRef.current = false;
-          toast.info('Draft restored', {
-            description: 'We restored your previous form data.',
-            duration: 3000
-          });
-        }, 100);
-      } catch (error) {
-        console.error('Failed to restore form data:', error);
-        isRestoringRef.current = false;
-      }
-    } else {
-      hasRestoredRef.current = true;
-    }
-  }, [setValue]);
-
-  useEffect(() => {
-    if (isRestoringRef.current || !hasRestoredRef.current) {
-      return;
-    }
-
-    if (autoSaveTimerRef.current) {
-      clearTimeout(autoSaveTimerRef.current);
-    }
-
-    const dataString = JSON.stringify(formValues);
-    if (dataString === lastSavedDataRef.current) {
-      return;
-    }
-
-    autoSaveTimerRef.current = setTimeout(() => {
-      try {
-        const hasData = Object.values(formValues).some(value =>
-          value && value !== "consultation" && value !== "email" && value !== "flexible"
-        );
-
-        if (hasData && !isSubmitted) {
-          setAutoSaveStatus('saving');
-
-          requestAnimationFrame(() => {
-            localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(formValues));
-            lastSavedDataRef.current = dataString;
-            setAutoSaveStatus('saved');
-
-            setTimeout(() => {
-              setAutoSaveStatus('idle');
-            }, 2000);
-          });
-        }
-      } catch (error) {
-        console.error('Auto-save failed:', error);
-        setAutoSaveStatus('error');
-        setTimeout(() => {
-          setAutoSaveStatus('idle');
-        }, 2000);
-      }
-    }, 1000);
-
-    return () => {
-      if (autoSaveTimerRef.current) {
-        clearTimeout(autoSaveTimerRef.current);
-      }
-    };
-  }, [formValues, isSubmitted]);
 
   const submitWithRetry = async (data, attempt = 1) => {
     try {
@@ -314,7 +227,6 @@ export default function BookConsultation() {
       setSubmitSuccess(true);
 
       setTimeout(() => {
-        localStorage.removeItem(FORM_STORAGE_KEY);
         setIsSubmitted(true);
         setRetryCount(0);
         reset();
@@ -559,40 +471,9 @@ export default function BookConsultation() {
           >
             <Card className="border border-slate-200 shadow-sm overflow-hidden">
               <CardHeader className="p-4 sm:p-6 lg:p-8 bg-slate-50 border-b border-slate-200">
-                <div className="flex items-center justify-between mb-4">
-                  <CardTitle className="text-lg sm:text-xl font-semibold text-black">
-                    Consultation Request
-                  </CardTitle>
-                  <AnimatePresence>
-                    {autoSaveStatus !== 'idle' && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        className="flex items-center gap-2 text-sm"
-                      >
-                        {autoSaveStatus === 'saving' && (
-                          <>
-                            <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-500" />
-                            <span className="text-slate-600">Saving...</span>
-                          </>
-                        )}
-                        {autoSaveStatus === 'saved' && (
-                          <>
-                            <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
-                            <span className="text-green-700">Saved</span>
-                          </>
-                        )}
-                        {autoSaveStatus === 'error' && (
-                          <>
-                            <AlertCircle className="h-3.5 w-3.5 text-red-500" />
-                            <span className="text-red-600">Save failed</span>
-                          </>
-                        )}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                <CardTitle className="text-lg sm:text-xl font-semibold text-black mb-4">
+                  Consultation Request
+                </CardTitle>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs text-slate-600">
                     <span>Form Completion</span>
