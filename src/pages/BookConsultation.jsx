@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ContactInquiry } from "@/api/contactInquiries";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,11 +25,61 @@ const consultationSchema = z.object({
   urgency: z.string().default("flexible")
 });
 
+const FORM_STORAGE_KEY = 'consultation_form_draft';
+const REQUEST_TIMEOUT = 30000;
+const MAX_RETRIES = 3;
+
+const fetchWithTimeout = async (url, options, timeout = REQUEST_TIMEOUT) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('Request timeout - please check your internet connection');
+    }
+    throw error;
+  }
+};
+
+const getErrorMessage = (error) => {
+  if (!navigator.onLine) {
+    return 'No internet connection. Please check your network and try again.';
+  }
+
+  if (error.message?.includes('timeout')) {
+    return 'Request timeout. Your connection may be slow. Please try again.';
+  }
+
+  if (error.message?.includes('Failed to fetch')) {
+    return 'Unable to connect to the server. Please check your internet connection.';
+  }
+
+  if (error.status >= 500) {
+    return 'Server error. Our team has been notified. Please try again in a few moments.';
+  }
+
+  if (error.status === 429) {
+    return 'Too many requests. Please wait a moment and try again.';
+  }
+
+  return error.message || 'An unexpected error occurred. Please try again.';
+};
+
 export default function BookConsultation() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedData, setSubmittedData] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [isRetrying, setIsRetrying] = useState(false);
 
-  const { control, handleSubmit, formState: { errors, isSubmitting }, reset, watch } = useForm({
+  const { control, handleSubmit, formState: { errors, isSubmitting }, reset, watch, setValue } = useForm({
     resolver: zodResolver(consultationSchema),
     defaultValues: {
       full_name: "",
@@ -44,45 +94,143 @@ export default function BookConsultation() {
     }
   });
 
+  const formValues = watch();
   const messageValue = watch("message") || "";
   const messageLength = messageValue.length;
   const maxMessageLength = 1000;
 
-  const onSubmit = async (data) => {
+  useEffect(() => {
+    const savedData = localStorage.getItem(FORM_STORAGE_KEY);
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        Object.keys(parsedData).forEach(key => {
+          setValue(key, parsedData[key]);
+        });
+        toast.info('Draft restored', {
+          description: 'We restored your previous form data.',
+          duration: 3000
+        });
+      } catch (error) {
+        console.error('Failed to restore form data:', error);
+      }
+    }
+  }, [setValue]);
+
+  useEffect(() => {
+    const hasData = Object.values(formValues).some(value =>
+      value && value !== "consultation" && value !== "email" && value !== "flexible"
+    );
+
+    if (hasData && !isSubmitted) {
+      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(formValues));
+    }
+  }, [formValues, isSubmitted]);
+
+  const submitWithRetry = async (data, attempt = 1) => {
     try {
       const result = await ContactInquiry.create(data);
-      setSubmittedData(result);
+      return result;
+    } catch (error) {
+      if (attempt < MAX_RETRIES && (!error.status || error.status >= 500)) {
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return submitWithRetry(data, attempt + 1);
+      }
+      throw error;
+    }
+  };
 
-      try {
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const sendEmailNotification = async (data) => {
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-        const response = await fetch(`${supabaseUrl}/functions/v1/send-contact-notification`, {
+      const response = await fetchWithTimeout(
+        `${supabaseUrl}/functions/v1/send-contact-notification`,
+        {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${supabaseAnonKey}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(data),
-        });
+        },
+        15000
+      );
 
-        if (!response.ok) {
-          console.warn('Email notification failed, but form was saved');
-        }
-      } catch (emailError) {
-        console.warn('Failed to send email notifications:', emailError);
+      if (!response.ok) {
+        console.warn('Email notification failed, but form was saved');
+      }
+    } catch (emailError) {
+      console.warn('Failed to send email notifications:', emailError);
+    }
+  };
+
+  const onSubmit = async (data) => {
+    try {
+      if (!navigator.onLine) {
+        toast.error('No internet connection', {
+          description: 'Please check your network connection and try again.',
+          action: {
+            label: 'Retry',
+            onClick: () => handleSubmit(onSubmit)()
+          }
+        });
+        return;
       }
 
+      const result = await submitWithRetry(data);
+      setSubmittedData(result);
+
+      await sendEmailNotification(data);
+
+      localStorage.removeItem(FORM_STORAGE_KEY);
       setIsSubmitted(true);
+      setRetryCount(0);
       reset();
+
       toast.success("Consultation request submitted successfully!", {
         description: "We'll be in touch within 24 hours."
       });
     } catch (error) {
       console.error("Submission error:", error);
+
+      const errorMessage = getErrorMessage(error);
+      const canRetry = retryCount < MAX_RETRIES && (!error.status || error.status >= 500 || !navigator.onLine);
+
       toast.error("Failed to submit consultation request", {
-        description: error.message || "Please try again or contact us directly at contact@rarefindtalent.com"
+        description: errorMessage,
+        duration: 6000,
+        action: canRetry ? {
+          label: 'Retry',
+          onClick: () => handleRetry(data)
+        } : undefined
       });
+    }
+  };
+
+  const handleRetry = async (data) => {
+    if (retryCount >= MAX_RETRIES) {
+      toast.error('Maximum retry attempts reached', {
+        description: 'Please contact us directly at contact@rarefindtalent.com'
+      });
+      return;
+    }
+
+    setIsRetrying(true);
+    setRetryCount(prev => prev + 1);
+
+    toast.info(`Retrying submission (${retryCount + 1}/${MAX_RETRIES})...`, {
+      duration: 2000
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    try {
+      await onSubmit(data);
+    } finally {
+      setIsRetrying(false);
     }
   };
 
