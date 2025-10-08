@@ -48,6 +48,27 @@ export default function BookConsultation() {
     try {
       const result = await ContactInquiry.create(data);
       setSubmittedData(result);
+
+      try {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+        const response = await fetch(`${supabaseUrl}/functions/v1/send-contact-notification`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          console.warn('Email notification failed, but form was saved');
+        }
+      } catch (emailError) {
+        console.warn('Failed to send email notifications:', emailError);
+      }
+
       setIsSubmitted(true);
       reset();
       toast.success("Consultation request submitted successfully!", {
