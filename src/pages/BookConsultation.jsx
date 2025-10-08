@@ -107,6 +107,8 @@ export default function BookConsultation() {
   const [autoSaveStatus, setAutoSaveStatus] = useState('idle');
   const autoSaveTimerRef = useRef(null);
   const lastSavedDataRef = useRef(null);
+  const isRestoringRef = useRef(false);
+  const hasRestoredRef = useRef(false);
 
   const { control, handleSubmit, formState: { errors, isSubmitting, touchedFields }, reset, watch, setValue, trigger } = useForm({
     resolver: zodResolver(consultationSchema),
