@@ -270,22 +270,76 @@ export default function BookConsultation() {
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           <div className="max-w-2xl mx-auto">
-            <Card className="border border-slate-200 shadow-sm">
+            <Card className="border-2 border-emerald-100 shadow-lg bg-gradient-to-b from-emerald-50/50 to-white">
               <CardContent className="p-10 md:p-12 text-center">
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
+                  className="mb-6"
                 >
-                  <CheckCircle className="h-16 w-16 text-emerald-500 mx-auto mb-6" />
+                  <div className="relative inline-block">
+                    <div className="absolute inset-0 bg-emerald-500/10 rounded-full blur-2xl" />
+                    <CheckCircle className="h-20 w-20 text-emerald-500 relative" />
+                  </div>
                 </motion.div>
-                <h2 className="text-2xl font-semibold text-black mb-4">
-                  Thank You For Your Inquiry
-                </h2>
-                <p className="text-slate-600 text-lg leading-relaxed">
-                  We've received your request and will be in touch within 24 hours 
-                  to schedule a consultation.
-                </p>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <h2 className="text-3xl font-semibold text-black mb-4">
+                    Thank You, {submittedData?.full_name?.split(' ')[0] || 'there'}!
+                  </h2>
+                  <p className="text-slate-600 text-lg leading-relaxed mb-6">
+                    We've received your consultation request and will be in touch within 24 hours
+                    to schedule your personalized consultation.
+                  </p>
+
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6 mb-6 text-left">
+                    <h3 className="font-semibold text-black mb-3 flex items-center gap-2">
+                      <CheckCircle className="h-5 w-5 text-emerald-600" />
+                      What Happens Next?
+                    </h3>
+                    <ul className="space-y-2 text-slate-700">
+                      <li className="flex items-start gap-2">
+                        <span className="text-emerald-600 font-bold mt-1">1.</span>
+                        <span>Our team will review your inquiry</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-emerald-600 font-bold mt-1">2.</span>
+                        <span>We'll reach out via {submittedData?.preferred_contact || 'email'} to schedule your consultation</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-emerald-600 font-bold mt-1">3.</span>
+                        <span>Prepare to discuss your talent needs and goals</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button
+                      onClick={() => setIsSubmitted(false)}
+                      variant="outline"
+                      className="border-slate-300 hover:border-slate-400 hover:bg-slate-50"
+                    >
+                      Submit Another Request
+                    </Button>
+                    <Button
+                      onClick={() => window.location.href = '/'}
+                      className="bg-slate-900 hover:bg-slate-800"
+                    >
+                      Return to Home
+                    </Button>
+                  </div>
+
+                  {submittedData?.email && (
+                    <p className="text-sm text-slate-500 mt-6">
+                      A confirmation has been sent to <span className="font-medium text-slate-700">{submittedData.email}</span>
+                    </p>
+                  )}
+                </motion.div>
               </CardContent>
             </Card>
           </div>
@@ -557,10 +611,10 @@ export default function BookConsultation() {
                   <div className="pt-2 sm:pt-4">
                     <Button
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || isRetrying}
                       className="w-full bg-black text-white hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed h-12 sm:h-14 text-base sm:text-lg font-medium transition-all duration-300 transform touch-manipulation"
                     >
-                      {isSubmitting ? (
+                      {isSubmitting || isRetrying ? (
                         <span className="flex items-center justify-center gap-2">
                           <Loader2 className="h-5 w-5 animate-spin" />
                           Submitting...
