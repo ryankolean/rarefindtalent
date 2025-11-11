@@ -6,7 +6,6 @@ import { createPageUrl } from "@/utils";
 import { motion, useScroll, useTransform } from "framer-motion";
 import FAQ from "@/components/FAQ";
 import Testimonials from "@/components/Testimonials";
-import CaseStudies from "@/components/CaseStudies";
 import NewsletterSignup from "@/components/NewsletterSignup";
 
 export default function Home() {
@@ -431,9 +430,6 @@ export default function Home() {
 
       {/* Testimonials Section */}
       <Testimonials />
-
-      {/* Case Studies Section */}
-      <CaseStudies />
 
       {/* FAQ Section */}
       <FAQ />
