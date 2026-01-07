@@ -1,7 +1,7 @@
 
 
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,7 @@ export default function Layout({ children }) {
       ]
     },
     { name: "About", type: "text" },
-    { name: "Contact", type: "text" }
+    { name: "Contact", type: "link", href: createPageUrl("BookConsultation") }
   ];
 
   const [servicesDropdownOpen, setServicesDropdownOpen] = React.useState(false);
@@ -56,6 +56,17 @@ export default function Layout({ children }) {
             ))}
           </div>
         </div>
+      );
+    }
+
+    if (item.type === 'link') {
+      return (
+        <Link
+          to={item.href}
+          className="krysta-nav text-slate-800 hover:text-slate-600 transition-colors duration-200"
+        >
+          {item.name}
+        </Link>
       );
     }
 
@@ -170,6 +181,19 @@ export default function Layout({ children }) {
                           ))}
                         </div>
                       </div>
+                    );
+                  }
+
+                  if (item.type === 'link') {
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        className="krysta-nav text-slate-800 hover:text-slate-600 transition-colors duration-200"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {item.name}
+                      </Link>
                     );
                   }
 

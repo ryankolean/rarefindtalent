@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, AlertCircle, Loader2, Info } from "lucide-react";
+import { CheckCircle, AlertCircle, Loader2, Info, Mail, Phone } from "lucide-react";
 import { motion } from "framer-motion";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -468,6 +468,53 @@ export default function BookConsultation() {
             <p className={pageSubtitleStyles}>
               Ready to discuss your talent needs? Fill out the form below and we'll schedule a free consultation to explore how we can help you find the right talent for your organization.
             </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Direct Contact Section */}
+      <section className="px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+          >
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 sm:p-8">
+              <div className="text-center mb-6">
+                <h2 className="text-lg sm:text-xl font-semibold text-slate-900 mb-2">
+                  Prefer to Reach Out Directly?
+                </h2>
+                <p className="text-slate-600 text-sm sm:text-base">
+                  We'd love to hear from you. Contact us directly via email or phone, or complete the form below.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+                <a
+                  href="mailto:contact@rarefindtalent.com"
+                  className="flex items-center gap-3 text-slate-700 hover:text-slate-900 transition-colors duration-200 group"
+                >
+                  <div className="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center group-hover:border-slate-300 transition-colors duration-200">
+                    <Mail className="h-5 w-5" />
+                  </div>
+                  <span className="font-medium">contact@rarefindtalent.com</span>
+                </a>
+                <a
+                  href="tel:+12488122425"
+                  className="flex items-center gap-3 text-slate-700 hover:text-slate-900 transition-colors duration-200 group"
+                >
+                  <div className="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center group-hover:border-slate-300 transition-colors duration-200">
+                    <Phone className="h-5 w-5" />
+                  </div>
+                  <span className="font-medium">(248) 812-2425</span>
+                </a>
+              </div>
+              <div className="mt-6 pt-6 border-t border-slate-200 text-center">
+                <p className="text-slate-500 text-sm">
+                  Or fill out the consultation request form below
+                </p>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
