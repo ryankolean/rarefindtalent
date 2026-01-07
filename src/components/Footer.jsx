@@ -18,7 +18,7 @@ export default function Footer() {
     ],
     contact: [
       { icon: Mail, text: "contact@rarefindtalent.com" },
-      { icon: Phone, text: "(555) 123-4567" },
+      { icon: Phone, text: "(248) 812-2425" },
       { icon: Linkedin, text: "Connect on LinkedIn" }
     ]
   };

@@ -59,7 +59,7 @@ const consultationSchema = z.object({
     .optional()
     .refine(
       (val) => !val || val.length === 0 || (val.length >= 8 && phoneRegex.test(val)),
-      "Please enter a valid phone number (e.g., +1 555-123-4567 or +44 20 1234 5678)"
+      "Please enter a valid phone number (e.g., +1 248-812-2425 or +44 20 1234 5678)"
     ),
   company_name: z.string().optional(),
   job_title: z.string().optional(),
@@ -585,7 +585,7 @@ export default function BookConsultation() {
                             <Info className="h-3.5 w-3.5 text-slate-400 cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-xs">
-                            <p>Optional. Include country code for international numbers (e.g., {countryCode} 555-123-4567)</p>
+                            <p>Optional. Include country code for international numbers (e.g., {countryCode} 248-812-2425)</p>
                           </TooltipContent>
                         </Tooltip>
                       </div>
@@ -597,7 +597,7 @@ export default function BookConsultation() {
                             {...field}
                             id="phone"
                             type="tel"
-                            placeholder={`${countryCode} 555-123-4567`}
+                            placeholder={`${countryCode} 248-812-2425`}
                             disabled={isSubmitting || isRetrying}
                             className={`h-11 sm:h-12 text-base ${errors.phone ? 'border-red-500' : ''} ${(isSubmitting || isRetrying) ? 'opacity-60 cursor-not-allowed' : ''}`}
                           />
@@ -610,7 +610,7 @@ export default function BookConsultation() {
                         </p>
                       )}
                       {!errors.phone && (
-                        <p className="text-xs text-slate-500 mt-1">Optional - Include country code: {countryCode} 555-123-4567</p>
+                        <p className="text-xs text-slate-500 mt-1">Optional - Include country code: {countryCode} 248-812-2425</p>
                       )}
                     </div>
                     <div>

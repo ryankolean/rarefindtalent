@@ -294,7 +294,7 @@ export default function CalendarBooking() {
                 value={formData.phone}
                 onChange={(e) => handleChange('phone', e.target.value)}
                 onBlur={() => handleBlur('phone')}
-                placeholder="(555) 123-4567"
+                placeholder="(248) 812-2425"
                 aria-invalid={!!errors.phone}
                 aria-describedby={errors.phone ? "phone-error" : undefined}
                 className={`h-11 sm:h-12 ${errors.phone ? 'border-red-500 focus:ring-red-500' : ''}`}
