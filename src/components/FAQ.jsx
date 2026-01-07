@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 const faqs = [
   {
     question: "What is contingency placement and how does it work?",
-    answer: "Contingency placement means you only pay when we successfully place a candidate who accepts your offer. There are no upfront costs or retainer fees. Our fee is typically 15% of the hired candidate's first year base compensation. We work diligently to find the right fit, and if the placement doesn't work out within the guarantee period, we'll find a replacement at no additional cost."
+    answer: "Contingency placement means you only pay when we successfully place a candidate who accepts your offer. There are no upfront costs or retainer fees. We work diligently to find the right fit, and if the placement doesn't work out within the guarantee period, we'll find a replacement at no additional cost."
   },
   {
     question: "How long does the typical placement process take?",
@@ -18,7 +18,7 @@ const faqs = [
   },
   {
     question: "What industries and roles do you specialize in?",
-    answer: "We work across multiple industries including technology, finance, professional services, marketing, and operations. Our expertise spans from entry-level positions to C-suite executives. We specialize in mid-level through executive roles but also accommodate part-time and entry-level positions with custom pricing."
+    answer: "We work across multiple industries including technology, finance, professional services, marketing, and operations. Our expertise spans from entry-level positions to C-suite executives. We specialize in mid-level through executive roles but also accommodate part-time and entry-level positions."
   },
   {
     question: "What is your candidate vetting process?",
@@ -30,7 +30,7 @@ const faqs = [
   },
   {
     question: "What does your resume review service include?",
-    answer: "Our resume services range from live editing sessions to comprehensive rewrites. We offer 40-minute live editing sessions ($100), career coaching ($125/hour), interview preparation ($125/hour), and combined packages. All services include ATS optimization, achievement-focused content, and industry-specific formatting."
+    answer: "Our resume services range from live editing sessions to comprehensive rewrites. We offer live editing sessions, career coaching, interview preparation, and combined packages. All services include ATS optimization, achievement-focused content, and industry-specific formatting. Contact us for details."
   },
   {
     question: "What is your replacement guarantee?",

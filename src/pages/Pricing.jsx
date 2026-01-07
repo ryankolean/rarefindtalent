@@ -1,16 +1,15 @@
 import React from "react";
 import { motion } from "framer-motion";
-import PricingCalculator from "@/components/PricingCalculator";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle } from "lucide-react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 export default function Pricing() {
-  const pricingPlans = [
+  const servicePlans = [
     {
       name: "Contingency Placement",
       description: "Risk-free recruiting - pay only for successful placements",
-      rate: "15%",
-      unit: "of first-year salary",
       features: [
         "No upfront costs",
         "Unlimited candidate submissions",
@@ -23,10 +22,7 @@ export default function Pricing() {
     {
       name: "Contract Services",
       description: "Flexible consulting for special projects",
-      rate: "$85",
-      unit: "per hour",
       features: [
-        "120-hour minimum commitment",
         "Project-based or ongoing",
         "Process improvement consulting",
         "ATS implementation support",
@@ -37,15 +33,12 @@ export default function Pricing() {
     {
       name: "Career Services",
       description: "Professional coaching and resume services",
-      rate: "$125",
-      unit: "per session",
       features: [
-        "60-minute coaching sessions",
         "Resume review and optimization",
         "Interview preparation",
         "Salary negotiation guidance",
         "LinkedIn profile enhancement",
-        "Package discounts available"
+        "Career coaching sessions"
       ]
     }
   ];
@@ -73,15 +66,15 @@ export default function Pricing() {
             className="text-center mb-16"
           >
             <h1 className="page-title text-black mb-6">
-              Transparent Pricing
+              Our Services
             </h1>
             <p className="text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto">
-              No hidden fees. No surprises. Just straightforward pricing that aligns with your success.
+              Tailored solutions to meet your recruiting and career development needs.
             </p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8 mb-16">
-            {pricingPlans.map((plan, index) => (
+            {servicePlans.map((plan, index) => (
               <motion.div
                 key={plan.name}
                 initial={{ opacity: 0, y: 20 }}
@@ -94,13 +87,9 @@ export default function Pricing() {
                     <h3 className="text-xl font-semibold text-black mb-2">
                       {plan.name}
                     </h3>
-                    <p className="text-sm text-slate-600 mb-4">
+                    <p className="text-sm text-slate-600 mb-6">
                       {plan.description}
                     </p>
-                    <div className="mb-6">
-                      <span className="text-4xl font-bold text-black">{plan.rate}</span>
-                      <span className="text-slate-600 ml-2">{plan.unit}</span>
-                    </div>
                     <ul className="space-y-3">
                       {plan.features.map((feature, idx) => (
                         <li key={idx} className="flex items-start gap-2">
@@ -120,9 +109,17 @@ export default function Pricing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="max-w-2xl mx-auto"
+            className="text-center"
           >
-            <PricingCalculator />
+            <p className="text-lg text-slate-600 mb-6">
+              Ready to learn more? Book a consultation to discuss your specific needs.
+            </p>
+            <Link
+              to={createPageUrl("BookConsultation")}
+              className="inline-block bg-black text-white px-8 py-3.5 text-base font-medium rounded-md hover:bg-slate-800 transition-all duration-300"
+            >
+              Book a Consultation
+            </Link>
           </motion.div>
         </div>
       </section>

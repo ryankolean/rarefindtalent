@@ -15,12 +15,11 @@ export default function Home() {
   const services = [
     {
       title: "Contingency Placement",
-      description: "We will work on openings of any level for a fee equal to 15% of the hired candidate's first year base compensation. We specialize in mid-level through executive roles (up to and including C suite), but we will also work on part-time and entry-level roles for a custom, reduced rate."
+      description: "We specialize in mid-level through executive roles (up to and including C suite), but we will also work on part-time and entry-level roles. You only pay when we successfully place a candidate."
     },
     {
-      title: "In-house Contract Services", 
-      description: "We support project-based needs, such as in-depth research, building a project plan for bringing on new teams, designing and rolling out a recruiting process for your company, or onboarding a new ATS.",
-      additional: "Hourly rate (negotiable based on assignment); minimum of 120 hours"
+      title: "In-house Contract Services",
+      description: "We support project-based needs, such as in-depth research, building a project plan for bringing on new teams, designing and rolling out a recruiting process for your company, or onboarding a new ATS."
     },
     {
       title: "Resume Reviews/Coaching",
@@ -28,23 +27,19 @@ export default function Home() {
       services: [
         {
           name: "Live Resume Editing Session",
-          price: "$100",
-          duration: "(40 minutes)"
+          duration: "40 minutes"
         },
         {
-          name: "Career Coaching", 
-          price: "$125/session",
-          duration: "(60 minutes)"
+          name: "Career Coaching",
+          duration: "60 minutes"
         },
         {
           name: "Interview Coaching & Negotiation Prep",
-          price: "$125/session", 
-          duration: "(60 minutes)"
+          duration: "60 minutes"
         },
         {
           name: "Coaching + Resume Editing Session",
-          price: "$175",
-          duration: "(80 minutes)"
+          duration: "80 minutes"
         }
       ]
     }
@@ -273,9 +268,7 @@ export default function Home() {
                             <CardContent className="p-6">
                               <div className="coaching-item">
                                 <div className="font-semibold text-black mb-2">{item.name}</div>
-                                <div className="text-slate-600">
-                                  <span className="font-medium text-slate-800">{item.price}</span> {item.duration}
-                                </div>
+                                <div className="text-slate-600">{item.duration}</div>
                               </div>
                             </CardContent>
                           </Card>
@@ -283,16 +276,9 @@ export default function Home() {
                       ))}
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      <p className="service-description max-w-3xl">
-                        {service.description}
-                      </p>
-                      {service.additional && (
-                        <p className="service-description font-medium text-slate-700">
-                          {service.additional}
-                        </p>
-                      )}
-                    </div>
+                    <p className="service-description max-w-3xl">
+                      {service.description}
+                    </p>
                   )}
                 </div>
               </motion.div>
