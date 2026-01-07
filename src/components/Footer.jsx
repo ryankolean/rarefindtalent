@@ -16,8 +16,7 @@ export default function Footer() {
     ],
     company: [
       { name: "About", href: "/About" },
-      { name: "Pricing", href: "/Pricing" },
-      { name: "Testimonials", href: "/#testimonials" }
+      { name: "Pricing", href: "/Pricing" }
     ],
     contact: [
       { icon: Mail, text: "contact@rarefindtalent.com", href: "mailto:contact@rarefindtalent.com" },

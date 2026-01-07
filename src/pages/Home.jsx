@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion, useScroll, useTransform } from "framer-motion";
 import FAQ from "@/components/FAQ";
-import Testimonials from "@/components/Testimonials";
 import NewsletterSignup from "@/components/NewsletterSignup";
 
 export default function Home() {
@@ -413,9 +412,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Testimonials Section */}
-      <Testimonials />
 
       {/* FAQ Section */}
       <FAQ />
