@@ -6,7 +6,6 @@ import About from "./About";
 import ContingencyPlacement from "./ContingencyPlacement";
 import ContractServices from "./ContractServices";
 import ResumeServices from "./ResumeServices";
-import Pricing from "./Pricing";
 import NotFound from "./NotFound";
 import ErrorBoundary from "./ErrorBoundary";
 
@@ -19,8 +18,7 @@ const PAGES = {
     About: About,
     ContingencyPlacement: ContingencyPlacement,
     ContractServices: ContractServices,
-    ResumeServices: ResumeServices,
-    Pricing: Pricing
+    ResumeServices: ResumeServices
 }
 
 function _getCurrentPage(url) {
@@ -51,7 +49,6 @@ function PagesContent() {
                 <Route path="/ContingencyPlacement" element={<ContingencyPlacement />} />
                 <Route path="/ContractServices" element={<ContractServices />} />
                 <Route path="/ResumeServices" element={<ResumeServices />} />
-                <Route path="/Pricing" element={<Pricing />} />
                 <Route path="*" element={<NotFound />} />
             </Routes>
         </Layout>
