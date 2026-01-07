@@ -1,7 +1,6 @@
 import React from "react";
 import Logo from "@/components/Logo";
 import { Linkedin, Mail, Phone } from "lucide-react";
-import NewsletterSignup from "@/components/NewsletterSignup";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -87,13 +86,6 @@ export default function Footer() {
                 );
               })}
             </ul>
-          </div>
-        </div>
-
-        <div className="mb-8">
-          <div className="max-w-md">
-            <h3 className="text-white font-semibold mb-2 text-sm">Stay Updated</h3>
-            <NewsletterSignup compact />
           </div>
         </div>
 
